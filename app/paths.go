@@ -25,6 +25,15 @@ func getPlexCollectionsPath() string {
 	return plexCollectionsPath
 }
 
+// getLogFilePath returns the log file path
+func getLogFilePath() string {
+	plexCollectionsPath := getPlexCollectionsPath()
+
+	logFilePath := filepath.Join(plexCollectionsPath, "plex-collections.log")
+
+	return logFilePath
+}
+
 // createDirIfNotExists will check a given directory and create it if it doesnt exist
 func createDirIfNotExists(path string) error {
 	if _, err := os.Stat(path); os.IsNotExist(err) {

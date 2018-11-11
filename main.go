@@ -5,5 +5,6 @@ import (
 )
 
 func main() {
-	app.NewApp()
+	application := app.NewApp()
+	defer application.LogFile.Close()
 }
