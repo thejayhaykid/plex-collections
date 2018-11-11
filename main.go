@@ -9,7 +9,9 @@ import (
 
 func main() {
 	application := app.NewApp()
+
 	defer application.LogFile.Close()
+	defer application.Database.Close()
 
 	r := routes.Router()
 	panic(http.ListenAndServe(":4500", r))

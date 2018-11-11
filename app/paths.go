@@ -34,6 +34,15 @@ func getLogFilePath() string {
 	return logFilePath
 }
 
+// getDatabaseFilePath returns the database sqlite file path
+func getDatabaseFilePath() string {
+	plexCollectionsPath := getPlexCollectionsPath()
+
+	dbFilePath := filepath.Join(plexCollectionsPath, "plex-collections.db")
+
+	return dbFilePath
+}
+
 // createDirIfNotExists will check a given directory and create it if it doesnt exist
 func createDirIfNotExists(path string) error {
 	if _, err := os.Stat(path); os.IsNotExist(err) {
