@@ -8,8 +8,8 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// initializeLogger will instantiate and return a new logger and log file
-func initializeLogger() (*logrus.Logger, *os.File) {
+// getLogger will instantiate and return a new logger and log file
+func (a *App) getLogger() {
 	logger := logrus.New()
 
 	logFilePath := getLogFilePath()
@@ -24,5 +24,6 @@ func initializeLogger() (*logrus.Logger, *os.File) {
 
 	logger.SetOutput(mw)
 
-	return logger, file
+	a.LogFile = file
+	a.Logger = logger
 }

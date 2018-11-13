@@ -15,25 +15,13 @@ type App struct {
 	Database *gorm.DB
 }
 
-// Config represents the application config
-type Config struct {
-	PlexCollectionsPath string
-}
-
 // NewApp runs applications startup tasks and returns an App struct
 func NewApp() App {
-	plexCollectionsPath := getPlexCollectionsPath()
-	logger, logFile := initializeLogger()
-	database := initializeDatabase()
+	app := App{}
 
-	config := Config{
-		PlexCollectionsPath: plexCollectionsPath,
-	}
+	app.getDatabase()
+	app.getLogger()
+	app.getConfig()
 
-	return App{
-		Config:   config,
-		Logger:   logger,
-		LogFile:  logFile,
-		Database: database,
-	}
+	return app
 }

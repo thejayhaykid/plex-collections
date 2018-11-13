@@ -13,6 +13,6 @@ func main() {
 	defer application.LogFile.Close()
 	defer application.Database.Close()
 
-	r := routes.Router()
+	r := routes.Router(application)
 	panic(http.ListenAndServe(":4500", r))
 }
