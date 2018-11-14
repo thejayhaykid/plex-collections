@@ -1,7 +1,12 @@
 package models
 
 import (
+	"net/http"
+	"net/url"
+	"strings"
+
 	"github.com/jinzhu/gorm"
+	"github.com/thedevsaddam/govalidator"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -24,6 +29,7 @@ func (u *User) BeforeCreate(scope *gorm.Scope) error {
 		return err
 	}
 
+	scope.DB().Model(u).Update("email", strings.ToLower(u.Email))
 	scope.DB().Model(u).Update("password", string(hash))
 
 	return nil
@@ -47,4 +53,34 @@ func (u *User) ValidPassword(password string) bool {
 	}
 
 	return true
+}
+
+// ParseAndValidate parses a user from a POST request and validated that user
+func (u *User) ParseAndValidate(r *http.Request) url.Values {
+	rules := govalidator.MapData{
+		"firstName": []string{"required"},
+		"lastName":  []string{"required"},
+		"email":     []string{"required", "email"},
+		"password":  []string{"required"},
+	}
+
+	messages := govalidator.MapData{
+		"firstName": []string{"required:First Name is required."},
+		"lastName":  []string{"required:Last Name is required."},
+		"email":     []string{"required:Email is required.", "email:Email must be a valid email."},
+		"password":  []string{"required:Password is required."},
+	}
+
+	opts := govalidator.Options{
+		Request:  r,
+		Data:     u,
+		Rules:    rules,
+		Messages: messages,
+	}
+
+	v := govalidator.New(opts)
+
+	e := v.ValidateJSON()
+
+	return e
 }

@@ -20,6 +20,7 @@ func (a *App) getDatabase() {
 	}
 
 	db.AutoMigrate(&models.Settings{})
+	db.AutoMigrate(&models.User{})
 
 	a.Database = db
 }
