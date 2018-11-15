@@ -21,6 +21,12 @@ type User struct {
 	Active    bool   `json:"active"`
 }
 
+// UserSignInPayload is used to unmarshal a user sign in JSON payload
+type UserSignInPayload struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
 // BeforeCreate is a hook that runs before a user is created
 func (u *User) BeforeCreate(scope *gorm.Scope) error {
 	hash, err := bcrypt.GenerateFromPassword([]byte(u.Password), bcrypt.MinCost)
@@ -69,6 +75,32 @@ func (u *User) ParseAndValidate(r *http.Request) url.Values {
 		"lastName":  []string{"required:Last Name is required."},
 		"email":     []string{"required:Email is required.", "email:Email must be a valid email."},
 		"password":  []string{"required:Password is required."},
+	}
+
+	opts := govalidator.Options{
+		Request:  r,
+		Data:     u,
+		Rules:    rules,
+		Messages: messages,
+	}
+
+	v := govalidator.New(opts)
+
+	e := v.ValidateJSON()
+
+	return e
+}
+
+// ParseAndValidate parses and validated a user sign in POST payload
+func (u *UserSignInPayload) ParseAndValidate(r *http.Request) url.Values {
+	rules := govalidator.MapData{
+		"email":    []string{"required", "email"},
+		"password": []string{"required"},
+	}
+
+	messages := govalidator.MapData{
+		"email":    []string{"required:Email is required.", "email:Email must be a valid email."},
+		"password": []string{"required:Password is required."},
 	}
 
 	opts := govalidator.Options{
