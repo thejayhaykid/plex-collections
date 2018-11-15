@@ -42,3 +42,9 @@ func getFirstValidationError(errors url.Values) string {
 
 	return errors[firstKey][0]
 }
+
+// parseGormError will parse gorm errors into user friendly messages
+func parseGormError(message string) string {
+
+	return "An unknown error occurred."
+}
