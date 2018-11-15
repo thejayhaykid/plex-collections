@@ -26,11 +26,10 @@ func (c AuthController) CreateUser(w http.ResponseWriter, r *http.Request) {
 	user.Role = "user"
 	user.Active = false
 
-	// TODO: Ensure user email is unique
 	if result := c.App.Database.Save(&user); result.Error != nil {
 		err := result.Error.Error()
-		message := parseGormError(err)
-		sendAPIError(w, 500, message)
+		status, message := parseGormError(err)
+		sendAPIError(w, status, message)
 		return
 	}
 
