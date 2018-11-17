@@ -2,9 +2,11 @@ package controllers
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/spencercharest/plex-collections/app"
 	"github.com/spencercharest/plex-collections/models"
+	"github.com/spencercharest/plex-collections/services"
 )
 
 // AuthController is a wrapper around auth controllers
@@ -26,7 +28,7 @@ func (c AuthController) CreateUser(w http.ResponseWriter, r *http.Request) {
 	user.Role = "user"
 	user.Active = false
 
-	if result := c.App.Database.Save(&user); result.Error != nil {
+	if result := c.App.Database.Create(&user); result.Error != nil {
 		err := result.Error.Error()
 		status, message := parseGormError(err)
 		sendAPIError(w, status, message)
@@ -46,14 +48,9 @@ func (c AuthController) AuthenticateUser(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	user := models.User{Email: userSignIn.Email}
+	user := models.User{Email: strings.ToLower(userSignIn.Email)}
 
-	if result := c.App.Database.Where(user).First(&user); result.Error != nil {
-		err := result.Error.Error()
-		status, message := parseGormError(err)
-		sendAPIError(w, status, message)
-		return
-	}
+	c.App.Database.Where(user).First(&user)
 
 	if user.ID == 0 {
 		sendAPIError(w, 403, "Incorrect email.")
@@ -65,6 +62,22 @@ func (c AuthController) AuthenticateUser(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	// TODO: send token with response
-	sendJSON(w, 200, user)
+	settings := models.Settings{}
+
+	if result := c.App.Database.First(&settings); result.Error != nil {
+		err := result.Error.Error()
+		status, message := parseGormError(err)
+		sendAPIError(w, status, message)
+		return
+	}
+
+	token := services.GenerateJWTToken(user, settings)
+
+	response := models.UserResponsePayload{
+		Token:  token,
+		Role:   user.Role,
+		Active: user.Active,
+	}
+
+	sendJSON(w, 200, response)
 }

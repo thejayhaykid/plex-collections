@@ -24,7 +24,7 @@ func (a *App) getConfig() {
 
 	if settings.JWTSecret == "" {
 		settings.JWTSecret = createSecret(12)
-		a.Database.Save(&settings)
+		a.Database.Create(&settings)
 	}
 
 	config.JWTSecret = settings.JWTSecret

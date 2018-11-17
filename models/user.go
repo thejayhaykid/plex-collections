@@ -27,6 +27,13 @@ type UserSignInPayload struct {
 	Password string `json:"password"`
 }
 
+// UserResponsePayload represents a sign in or sign up user response
+type UserResponsePayload struct {
+	Token  string `json:"token"`
+	Role   string `json:"role"`
+	Active bool   `json:"active"`
+}
+
 // BeforeCreate is a hook that runs before a user is created
 func (u *User) BeforeCreate(scope *gorm.Scope) error {
 	hash, err := bcrypt.GenerateFromPassword([]byte(u.Password), bcrypt.MinCost)
