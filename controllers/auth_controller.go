@@ -20,7 +20,7 @@ func (c AuthController) CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	if err := user.ParseAndValidate(r); len(err) != 0 {
 		message := getFirstValidationError(err)
-		sendAPIError(w, 400, message)
+		SendAPIError(w, 400, message)
 		return
 	}
 
@@ -31,11 +31,11 @@ func (c AuthController) CreateUser(w http.ResponseWriter, r *http.Request) {
 	if result := c.App.Database.Create(&user); result.Error != nil {
 		err := result.Error.Error()
 		status, message := parseGormError(err)
-		sendAPIError(w, status, message)
+		SendAPIError(w, status, message)
 		return
 	}
 
-	sendJSON(w, 200, user)
+	SendJSON(w, 200, user)
 }
 
 // AuthenticateUser authenticates a user sign in payload
@@ -44,7 +44,7 @@ func (c AuthController) AuthenticateUser(w http.ResponseWriter, r *http.Request)
 
 	if err := userSignIn.ParseAndValidate(r); len(err) != 0 {
 		message := getFirstValidationError(err)
-		sendAPIError(w, 400, message)
+		SendAPIError(w, 400, message)
 		return
 	}
 
@@ -53,12 +53,12 @@ func (c AuthController) AuthenticateUser(w http.ResponseWriter, r *http.Request)
 	c.App.Database.Where(user).First(&user)
 
 	if user.ID == 0 {
-		sendAPIError(w, 403, "Incorrect email.")
+		SendAPIError(w, 401, "Incorrect email.")
 		return
 	}
 
 	if !user.ValidPassword(userSignIn.Password) {
-		sendAPIError(w, 403, "Incorrect password.")
+		SendAPIError(w, 401, "Incorrect password.")
 		return
 	}
 
@@ -67,7 +67,7 @@ func (c AuthController) AuthenticateUser(w http.ResponseWriter, r *http.Request)
 	if result := c.App.Database.First(&settings); result.Error != nil {
 		err := result.Error.Error()
 		status, message := parseGormError(err)
-		sendAPIError(w, status, message)
+		SendAPIError(w, status, message)
 		return
 	}
 
@@ -79,5 +79,5 @@ func (c AuthController) AuthenticateUser(w http.ResponseWriter, r *http.Request)
 		Active: user.Active,
 	}
 
-	sendJSON(w, 200, response)
+	SendJSON(w, 200, response)
 }

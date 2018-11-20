@@ -11,18 +11,18 @@ type apiError struct {
 	Message string `json:"message"`
 }
 
-// sendJSON is an api util to send json to the client
-func sendJSON(w http.ResponseWriter, status int, payload interface{}) {
+// SendJSON is an api util to send json to the client
+func SendJSON(w http.ResponseWriter, status int, payload interface{}) {
 	response, _ := json.Marshal(payload)
 	w.WriteHeader(status)
 	w.Write(response)
 }
 
-// sendAPIError sends an api error message
+// SendAPIError sends an api error message
 // note: this will probably be expanded in the future but for now this will just send one user friendly message
-func sendAPIError(w http.ResponseWriter, status int, message string) {
+func SendAPIError(w http.ResponseWriter, status int, message string) {
 	err := apiError{Message: message}
-	sendJSON(w, status, err)
+	SendJSON(w, status, err)
 }
 
 // getFirstValidationError will return the first validation error
