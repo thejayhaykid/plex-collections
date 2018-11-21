@@ -42,8 +42,8 @@ func (u *User) BeforeCreate(scope *gorm.Scope) error {
 		return err
 	}
 
-	scope.DB().Model(u).Update("email", strings.ToLower(u.Email))
-	scope.DB().Model(u).Update("password", string(hash))
+	u.Email = strings.ToLower(u.Email)
+	u.Password = string(hash)
 
 	return nil
 }
