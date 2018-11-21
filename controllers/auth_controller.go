@@ -14,8 +14,8 @@ type AuthController struct {
 	App app.App
 }
 
-// CreateUser creates a user in the database
-func (c AuthController) CreateUser(w http.ResponseWriter, r *http.Request) {
+// Signup creates a user in the database
+func (c AuthController) Signup(w http.ResponseWriter, r *http.Request) {
 	user := models.User{}
 
 	if err := user.ParseAndValidate(r); len(err) != 0 {
@@ -38,8 +38,8 @@ func (c AuthController) CreateUser(w http.ResponseWriter, r *http.Request) {
 	SendJSON(w, 200, user)
 }
 
-// AuthenticateUser authenticates a user sign in payload
-func (c AuthController) AuthenticateUser(w http.ResponseWriter, r *http.Request) {
+// Signin authenticates a user sign in payload
+func (c AuthController) Signin(w http.ResponseWriter, r *http.Request) {
 	userSignIn := models.UserSignInPayload{}
 
 	if err := userSignIn.ParseAndValidate(r); len(err) != 0 {

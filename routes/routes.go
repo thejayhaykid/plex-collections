@@ -21,8 +21,8 @@ func Router(application app.App) http.Handler {
 	r.Route("/api", func(r chi.Router) {
 
 		r.Route("/auth", func(r chi.Router) {
-			r.Post("/signup", authController.CreateUser)
-			r.Post("/signin", authController.AuthenticateUser)
+			r.Post("/signup", authController.Signup)
+			r.Post("/signin", authController.Signin)
 		})
 
 	})
