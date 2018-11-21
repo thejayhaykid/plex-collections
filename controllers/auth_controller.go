@@ -62,6 +62,11 @@ func (c AuthController) AuthenticateUser(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
+	if !user.Active {
+		SendAPIError(w, 403, "Your account must be activated by your server administrator.")
+		return
+	}
+
 	settings := models.Settings{}
 
 	if result := c.App.Database.First(&settings); result.Error != nil {
