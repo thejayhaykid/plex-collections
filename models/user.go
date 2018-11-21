@@ -34,6 +34,13 @@ type UserResponsePayload struct {
 	Active bool   `json:"active"`
 }
 
+// UserPermissionsPatch represents a user permissions PATCH payload
+type UserPermissionsPatch struct {
+	ID     uint   `json:"id"`
+	Role   string `json:"role"`
+	Active bool   `json:"active"`
+}
+
 // BeforeCreate is a hook that runs before a user is created
 func (u *User) BeforeCreate(scope *gorm.Scope) error {
 	hash, err := bcrypt.GenerateFromPassword([]byte(u.Password), bcrypt.MinCost)
@@ -108,6 +115,34 @@ func (u *UserSignInPayload) ParseAndValidate(r *http.Request) url.Values {
 	messages := govalidator.MapData{
 		"email":    []string{"required:Email is required.", "email:Email must be a valid email."},
 		"password": []string{"required:Password is required."},
+	}
+
+	opts := govalidator.Options{
+		Request:  r,
+		Data:     u,
+		Rules:    rules,
+		Messages: messages,
+	}
+
+	v := govalidator.New(opts)
+
+	e := v.ValidateJSON()
+
+	return e
+}
+
+// ParseAndValidate parses and validated a user permissions PATCH payload
+func (u *UserPermissionsPatch) ParseAndValidate(r *http.Request) url.Values {
+	rules := govalidator.MapData{
+		"id":     []string{"required"},
+		"role":   []string{"required"},
+		"active": []string{"bool"},
+	}
+
+	messages := govalidator.MapData{
+		"id":     []string{"required:ID is required."},
+		"role":   []string{"required:Role is required."},
+		"active": []string{"bool:Active is required."},
 	}
 
 	opts := govalidator.Options{

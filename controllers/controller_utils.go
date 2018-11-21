@@ -46,8 +46,13 @@ func getFirstValidationError(errors url.Values) string {
 // parseGormError will parse known gorm errors into user friendly messages
 func parseGormError(message string) (code int, err string) {
 	switch message {
+
 	case "UNIQUE constraint failed: users.email":
 		return 400, "An account with this email already exists."
+
+	case "record not found":
+		return 400, "Record not found."
+
 	}
 
 	return 500, "An unknown error occurred."
