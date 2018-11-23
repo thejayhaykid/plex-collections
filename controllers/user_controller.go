@@ -14,31 +14,35 @@ type UserController struct {
 
 // UpdatePermissions handles user permission PUT requests
 func (c UserController) UpdatePermissions(w http.ResponseWriter, r *http.Request) {
-	userPermissionsPatch := models.UserPermissionsPatch{}
+	payload := models.UserPermissionsPatchPayload{}
 	user := models.User{}
 
-	if err := userPermissionsPatch.ParseAndValidate(r); len(err) != 0 {
-		message := getFirstValidationError(err)
+	if ok, message := Decode(r, &payload); !ok {
 		SendAPIError(w, 400, message)
 		return
 	}
 
-	if result := c.App.Database.First(&user, userPermissionsPatch.ID); result.Error != nil {
-		err := result.Error.Error()
-		status, message := parseGormError(err)
+	if result := c.App.Database.First(&user, payload.ID); result.Error != nil {
+		status, message := parseGormError(result)
 		SendAPIError(w, status, message)
 		return
 	}
 
-	user.Role = userPermissionsPatch.Role
-	user.Active = userPermissionsPatch.Active
+	user.Role = payload.Role
+
+	if *payload.Active {
+		user.Active = true
+	} else {
+		user.Active = false
+	}
 
 	if result := c.App.Database.Save(&user); result.Error != nil {
-		err := result.Error.Error()
-		status, message := parseGormError(err)
+		status, message := parseGormError(result)
 		SendAPIError(w, status, message)
 		return
 	}
 
-	SendJSON(w, 200, user)
+	response := models.MapUserDAOtoUserDTO(user)
+
+	SendJSON(w, 200, response)
 }

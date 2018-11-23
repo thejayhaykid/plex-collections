@@ -16,39 +16,42 @@ type AuthController struct {
 
 // Signup creates a user in the database
 func (c AuthController) Signup(w http.ResponseWriter, r *http.Request) {
-	user := models.User{}
+	payload := models.UserSignUpPayload{}
 
-	if err := user.ParseAndValidate(r); len(err) != 0 {
-		message := getFirstValidationError(err)
+	if ok, message := Decode(r, &payload); !ok {
 		SendAPIError(w, 400, message)
 		return
 	}
 
-	// implicity set these values on user creation
-	user.Role = "user"
-	user.Active = false
+	user := models.User{
+		Name:     payload.Name,
+		Email:    payload.Email,
+		Password: payload.Password,
+		Role:     "user",
+		Active:   false,
+	}
 
 	if result := c.App.Database.Create(&user); result.Error != nil {
-		err := result.Error.Error()
-		status, message := parseGormError(err)
+		status, message := parseGormError(result)
 		SendAPIError(w, status, message)
 		return
 	}
 
-	SendJSON(w, 200, user)
+	response := models.MapUserDAOtoUserDTO(user)
+
+	SendJSON(w, 200, response)
 }
 
 // Signin authenticates a user sign in payload
 func (c AuthController) Signin(w http.ResponseWriter, r *http.Request) {
-	userSignIn := models.UserSignInPayload{}
+	payload := models.UserSignInPayload{}
 
-	if err := userSignIn.ParseAndValidate(r); len(err) != 0 {
-		message := getFirstValidationError(err)
-		SendAPIError(w, 400, message)
+	if ok, err := Decode(r, &payload); !ok {
+		SendAPIError(w, 400, err)
 		return
 	}
 
-	user := models.User{Email: strings.ToLower(userSignIn.Email)}
+	user := models.User{Email: strings.ToLower(payload.Email)}
 
 	c.App.Database.Where(user).First(&user)
 
@@ -57,7 +60,7 @@ func (c AuthController) Signin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !user.ValidPassword(userSignIn.Password) {
+	if !user.ValidPassword(payload.Password) {
 		SendAPIError(w, 401, "Incorrect password.")
 		return
 	}
@@ -70,19 +73,14 @@ func (c AuthController) Signin(w http.ResponseWriter, r *http.Request) {
 	settings := models.Settings{}
 
 	if result := c.App.Database.First(&settings); result.Error != nil {
-		err := result.Error.Error()
-		status, message := parseGormError(err)
+		status, message := parseGormError(result)
 		SendAPIError(w, status, message)
 		return
 	}
 
 	token := services.GenerateJWTToken(user, settings)
 
-	response := models.UserResponsePayload{
-		Token:  token,
-		Role:   user.Role,
-		Active: user.Active,
-	}
+	response := models.MapUserDAOToUserAuthenticationResponse(user, token)
 
 	SendJSON(w, 200, response)
 }

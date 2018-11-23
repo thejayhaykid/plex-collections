@@ -5,6 +5,9 @@ import (
 	"net/http"
 	"net/url"
 	"sort"
+
+	"github.com/jinzhu/gorm"
+	"github.com/spencercharest/plex-collections/models"
 )
 
 type apiError struct {
@@ -23,6 +26,15 @@ func SendJSON(w http.ResponseWriter, status int, payload interface{}) {
 func SendAPIError(w http.ResponseWriter, status int, message string) {
 	err := apiError{Message: message}
 	SendJSON(w, status, err)
+}
+
+// Decode unmarshals and validates a JSON payload
+func Decode(r *http.Request, model models.RequestPayload) (ok bool, err string) {
+	if err := json.NewDecoder(r.Body).Decode(&model); err != nil {
+		return false, "Unable to parse JSON body."
+	}
+
+	return model.Validate()
 }
 
 // getFirstValidationError will return the first validation error
@@ -44,7 +56,9 @@ func getFirstValidationError(errors url.Values) string {
 }
 
 // parseGormError will parse known gorm errors into user friendly messages
-func parseGormError(message string) (code int, err string) {
+func parseGormError(result *gorm.DB) (code int, err string) {
+	message := result.Error.Error()
+
 	switch message {
 
 	case "UNIQUE constraint failed: users.email":
