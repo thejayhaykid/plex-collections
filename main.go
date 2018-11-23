@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	application := app.NewApp()
+	application := app.NewApplication()
 
 	defer application.LogFile.Close()
 	defer application.Database.Close()

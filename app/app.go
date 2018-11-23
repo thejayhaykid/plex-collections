@@ -7,21 +7,21 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// App is passed down to controllers and contains application, logger, and database
-type App struct {
+// Application is passed down to controllers and contains application, logger, and database
+type Application struct {
 	Config   Config
 	Logger   *logrus.Logger
 	LogFile  *os.File
 	Database *gorm.DB
 }
 
-// NewApp runs applications startup tasks and returns an App struct
-func NewApp() App {
-	app := App{}
+// NewApplication runs applications startup tasks and returns an App struct
+func NewApplication() Application {
+	application := Application{}
 
-	app.getDatabase()
-	app.getLogger()
-	app.getConfig()
+	application.getDatabase()
+	application.getLogger()
+	application.getConfig()
 
-	return app
+	return application
 }

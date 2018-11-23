@@ -9,7 +9,7 @@ import (
 )
 
 // getLogger will instantiate and return a new logger and log file
-func (a *App) getLogger() {
+func (a *Application) getLogger() {
 	logger := logrus.New()
 
 	logFilePath := getLogFilePath()

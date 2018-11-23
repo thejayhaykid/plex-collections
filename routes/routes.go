@@ -10,14 +10,14 @@ import (
 )
 
 // Router returns the application mux
-func Router(application app.App) http.Handler {
+func Router(application app.Application) http.Handler {
 	r := chi.NewRouter()
 
 	r.Use(middleware.AllowContentType("application/json"))
 	r.Use(middleware.SetHeader("Content-Type", "application/json"))
 
-	authController := controllers.AuthController{App: application}
-	userController := controllers.UserController{App: application}
+	authController := controllers.AuthController{DB: application.Database}
+	userController := controllers.UserController{DB: application.Database}
 
 	r.Route("/api", func(r chi.Router) {
 

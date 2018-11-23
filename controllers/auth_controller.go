@@ -4,14 +4,14 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/spencercharest/plex-collections/app"
+	"github.com/jinzhu/gorm"
 	"github.com/spencercharest/plex-collections/models"
 	"github.com/spencercharest/plex-collections/services"
 )
 
 // AuthController is a wrapper around auth controllers
 type AuthController struct {
-	App app.App
+	DB *gorm.DB
 }
 
 // Signup creates a user in the database
@@ -31,7 +31,7 @@ func (c AuthController) Signup(w http.ResponseWriter, r *http.Request) {
 		Active:   false,
 	}
 
-	if result := c.App.Database.Create(&user); result.Error != nil {
+	if result := c.DB.Create(&user); result.Error != nil {
 		status, message := parseGormError(result)
 		SendAPIError(w, status, message)
 		return
@@ -53,7 +53,7 @@ func (c AuthController) Signin(w http.ResponseWriter, r *http.Request) {
 
 	user := models.User{Email: strings.ToLower(payload.Email)}
 
-	c.App.Database.Where(user).First(&user)
+	c.DB.Where(user).First(&user)
 
 	if user.ID == 0 {
 		SendAPIError(w, 401, "Incorrect email.")
@@ -72,7 +72,7 @@ func (c AuthController) Signin(w http.ResponseWriter, r *http.Request) {
 
 	settings := models.Settings{}
 
-	if result := c.App.Database.First(&settings); result.Error != nil {
+	if result := c.DB.First(&settings); result.Error != nil {
 		status, message := parseGormError(result)
 		SendAPIError(w, status, message)
 		return

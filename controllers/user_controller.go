@@ -3,13 +3,13 @@ package controllers
 import (
 	"net/http"
 
-	"github.com/spencercharest/plex-collections/app"
+	"github.com/jinzhu/gorm"
 	"github.com/spencercharest/plex-collections/models"
 )
 
 // UserController is a wrapper around all user controllers
 type UserController struct {
-	App app.App
+	DB *gorm.DB
 }
 
 // UpdatePermissions handles user permission PUT requests
@@ -22,7 +22,7 @@ func (c UserController) UpdatePermissions(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	if result := c.App.Database.First(&user, payload.ID); result.Error != nil {
+	if result := c.DB.First(&user, payload.ID); result.Error != nil {
 		status, message := parseGormError(result)
 		SendAPIError(w, status, message)
 		return
@@ -36,7 +36,7 @@ func (c UserController) UpdatePermissions(w http.ResponseWriter, r *http.Request
 		user.Active = false
 	}
 
-	if result := c.App.Database.Save(&user); result.Error != nil {
+	if result := c.DB.Save(&user); result.Error != nil {
 		status, message := parseGormError(result)
 		SendAPIError(w, status, message)
 		return

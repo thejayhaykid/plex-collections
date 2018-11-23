@@ -10,7 +10,7 @@ import (
 )
 
 // getDatabase initializes and returns a sqlite3 database
-func (a *App) getDatabase() {
+func (a *Application) getDatabase() {
 	databasePath := getDatabaseFilePath()
 
 	db, err := gorm.Open("sqlite3", databasePath)

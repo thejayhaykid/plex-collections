@@ -13,7 +13,7 @@ type Config struct {
 	JWTSecret           string
 }
 
-func (a *App) getConfig() {
+func (a *Application) getConfig() {
 	config := Config{
 		PlexCollectionsPath: getPlexCollectionsPath(),
 	}
