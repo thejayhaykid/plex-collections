@@ -1,5 +1,7 @@
 package models
 
+import "regexp"
+
 // UserDTO is a data transer object for an application user
 type UserDTO struct {
 	ID     uint   `json:"id"`
@@ -19,12 +21,18 @@ type UserSignUpPayload struct {
 
 // Validate validates a user sign up POST payload
 func (u *UserSignUpPayload) Validate() (ok bool, err string) {
+	emailRegex := regexp.MustCompile(`^[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,4}$`)
+
 	if u.Name == "" {
 		return false, "Name is required."
 	}
 
 	if u.Email == "" {
 		return false, "Email is required."
+	}
+
+	if !emailRegex.MatchString(u.Email) {
+		return false, "Email must be a valid email."
 	}
 
 	if u.Password == "" {

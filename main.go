@@ -14,5 +14,6 @@ func main() {
 	defer application.Database.Close()
 
 	r := routes.Router(application)
+	app.StartMessage()
 	panic(http.ListenAndServe(":4500", r))
 }
